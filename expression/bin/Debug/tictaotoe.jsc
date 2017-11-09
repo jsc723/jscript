@@ -1,0 +1,160 @@
+var E = 1,O = 2,X = 3,N = 3,L = 8;
+arr board[N,N],lines[L,N,2];
+proc initialBoard()
+{
+    for((var i = 0),(i<3),(i=i+1))
+    {
+        for((var j = 0),(j<3),(j=j+1))
+        {
+            board[i,j] = E;
+        };
+    };
+};
+proc initlines()
+{
+    var i = 0,j = 0;
+    
+    for((i=0),(i<6),(i = i+1))
+	{
+		for((j = 0),(j<3),(j=j+1))
+		{
+            if(i<3){
+                lines[i,j,0] = i;
+            }else{
+                lines[i,j,0] = j;
+            };
+            if(i<3){
+                lines[i,j,1] = j;
+            }else{
+                lines[i,j,1] = i-3;
+            };
+		};
+	};
+	for((i=0),(i<3),(i=i+1))
+	{
+		lines[6,i,0] = i;
+		lines[6,i,1] = i;
+		lines[7,i,0] = i;
+		lines[7,i,1] = 2-i;
+	};
+    return obj lines;
+};
+proc printBoard()
+{
+    for((var i = 0),(i<3),(i=i+1))
+    {
+        for((var j = 0),(j<3),(j=j+1))
+        {
+            print("|");
+            if(board[i,j]==E)
+                {print("   ");};
+            if(board[i,j]==O)
+                {print(" O ");};
+            if(board[i,j]==X)
+                {print(" X ");};
+        };
+        print("|\n-------------\n");
+    };
+};
+proc getNum(str s,var low,var high)
+{
+    var result = 0;
+    print(s);
+	while(true)
+	{
+		inputNum(result);
+		if(result>=low && result<=high){break;};
+	    print("请输入",eval(low),"到",eval(high),":"); 
+	};
+    return result;
+};
+
+proc main()
+{
+    var round = 1,winner = 0,first;
+    var b_again = 0;
+    initialBoard();
+    initlines();
+    printBoard();
+    first = getNum("Who goes first? 1.O, 2.X: ",1,2);
+    while(true)
+	{
+		if(round>1||first==1) 
+		{ 
+			userInput(O);
+			printBoard();
+            breakpoint;
+			round = round + 1; 
+			winner = threeInBoard();
+		};
+		if(round==10||winner!=0){break;};
+		userInput(X); 
+		printBoard();
+		round = round+1;
+		winner = threeInBoard();
+		if(round==10||winner!=0) {break;};
+	};
+	printResult(winner);
+    pause "Press anything to countinue";
+};
+proc userInput(var who)
+{
+	var x,y;
+	print("Your turn:\n");
+	while(true)
+	{
+		x = getNum("Row(1-3):",1,3);
+		y = getNum("Column(1-3):",1,3);
+		if(board[x-1,y-1]==E) {break;};
+	    print("The location is not empty. Try again:\n");
+	};
+	board[x-1,y-1] = eval(who);	
+};
+
+proc threeInBoard()
+{
+	var winner = 0;
+    for((var i = 0),( i<L && winner==0 ),(i=i+1))
+    {
+        breakpoint;
+		winner = threeInLine(i);
+    };
+	return winner;
+};
+
+proc threeInLine(var index)
+{
+	var value = valueOfLine(index);
+	if(value==O*O*O){return O;};
+	if(value==X*X*X){return X;};
+	return 0;
+};
+
+proc valueOfLine(var index)
+{
+	var product = 1;
+	for((var i = 0),(i<N),(i = i+1))
+    {
+		product = product * board[lines[index,i,0],lines[index,i,1]];
+    };
+	return product;
+};
+proc printResult(var winner)
+{
+
+	print("\n-------Result :");
+	if(winner == O){
+        print("O win!");
+    }elif(winner == X){
+        print("X win!");
+    }else{
+        print("Draw");
+    };
+	print("-------\n\n");
+};
+
+
+
+
+
+main();

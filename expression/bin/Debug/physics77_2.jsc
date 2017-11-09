@@ -1,0 +1,52 @@
+var x 12.3, dx 0.4, y 5.6, dy 0.8, z 89, dz 0.2;
+func f1 x*y/z;
+func f2 x*y^2*z^3;
+func f3 ln(x*y*z);
+func f4 x+tan(y/z);
+func f5 10^(x*y/z);
+enviro;
+proc err(func f) 
+{ 
+    func fx deriv(f,x);
+    func fy deriv(f,y);
+    func fz deriv(f,z);
+    var xx eval(fx), yy eval(fy), zz eval(fz);
+    print("-------------------------------------------");
+    print("df/dx    = ",fx);
+    print("df/dy = ",fy);
+    print("df/dz = ",fz);
+    #print("xx = ",eval(xx));
+    #print("yy = ",eval(yy));
+    #print("zz = ",eval(zz));
+    print("dF = ", eval(((xx*dx)^2+(yy*dy)^2+(zz*dz)^2)^(0.5)));
+    print("F = ",eval(f));
+    print("-------------------------------------------");
+};
+#err(f1);
+#err(f2);
+#err(f3);
+#err(f4);
+#err(f5);
+proc fact(var n)
+{
+    if(n==0 || n==1)
+    { return n; }
+    else
+    { return n*fact(n-1); };
+};
+proc poisson(var ru,var n)
+{
+    return ru^n*exp(-1*ru)/fact(n);
+};
+var i 1,s 0;
+while(i<=19)
+{
+    set s s+poisson(7.293,i);
+    set i i+1;
+};
+print("poisson 1-19 = ",eval(s));
+pause;
+
+
+
+

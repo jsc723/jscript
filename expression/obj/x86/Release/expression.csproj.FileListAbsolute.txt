@@ -1,0 +1,4 @@
+C:\Users\jscjs\onedrive\documents\visual studio 2010\Projects\expression\expression\bin\Release\expression.exe
+C:\Users\jscjs\onedrive\documents\visual studio 2010\Projects\expression\expression\bin\Release\expression.pdb
+C:\Users\jscjs\onedrive\documents\visual studio 2010\Projects\expression\expression\obj\x86\Release\expression.exe
+C:\Users\jscjs\onedrive\documents\visual studio 2010\Projects\expression\expression\obj\x86\Release\expression.pdb
