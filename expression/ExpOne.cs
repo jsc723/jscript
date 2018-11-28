@@ -65,7 +65,7 @@ namespace expression
     {
         public Int(IExpression e) { u = e; name = "int"; }
         public override double eval(Frame frame) { double i = u.eval(frame); return (int)i; }
-        public override IExpression deriv(Variable v,ref Frame frame) { throw new Exception("int函数不能求导"); }
+        public override IExpression deriv(Variable v,ref Frame frame) { throw new Exception("int function cannot be derived"); }
         public override IExpression simplify() { return new Int(u.simplify()); }
     }
 }

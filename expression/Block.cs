@@ -87,7 +87,7 @@ namespace expression
                 if (parent != null)
                     parent.setVarValue(key, value);
                 else
-                    throw new Exception("环境中找不到：" + key);
+                    throw new Exception("cannot find：" + key);
             }
             if (!Program.stringisKeyInDic(key, varValues))
                 varValues.Add(key, value);
@@ -108,7 +108,7 @@ namespace expression
                 if (parent != null)
                     parent.setFunc(key, value);
                 else
-                    throw new Exception("环境中找不到：" + key);
+                    throw new Exception("cannot find：" + key);
             }
             funcs[key] = value;
         }
@@ -127,7 +127,7 @@ namespace expression
                 if (parent != null)
                     parent.setProc(key, value);
                 else
-                    throw new Exception("环境中找不到：" + key);
+                    throw new Exception("cannot find：" + key);
             }
             proces[key] = value;
         }
@@ -146,7 +146,7 @@ namespace expression
                 if (parent != null)
                     parent.setStr(key, value);
                 else
-                    throw new Exception("环境中找不到：" + key);
+                    throw new Exception("cannot find：" + key);
             }
             strs[key] = value;
         }
@@ -165,14 +165,14 @@ namespace expression
                 if (parent != null)
                     parent.setFunc(key, value);
                 else
-                    throw new Exception("环境中找不到：" + key);
+                    throw new Exception("cannot find：" + key);
             }
             arrs[key] = value;
         }
 
         public void showFrame()
         {
-            Console.WriteLine("---------------变量----------------");
+            Console.WriteLine("---------------var----------------");
             foreach (Variable v in vars.Values)
             {
                 Console.Write("{0}", v.name);
@@ -180,25 +180,25 @@ namespace expression
                     Console.Write(" = {0}", varValues[v.name]);
                 Console.Write("; ");
             }
-            Console.WriteLine("\n---------------字符串----------------");
+            Console.WriteLine("\n---------------str----------------");
             foreach (var s in strs)
             {
                 Console.Write("{0}： ", s.Key);
                 Tools.print(s.Value);
             }
-            Console.WriteLine("\n---------------数组----------------");
+            Console.WriteLine("\n---------------arr----------------");
             foreach (var s in arrs)
             {
                 Console.Write("{0}： ", s.Key);
                 Tools.print(s.Value);
             }
-            Console.WriteLine("\n---------------数学函数----------------");
+            Console.WriteLine("\n---------------func----------------");
             foreach (var p in funcs)
             {
                 Console.Write("{0} = ", p.Key);
                 Tools.print(p.Value);
             }
-            Console.WriteLine("\n---------------程序函数----------------");
+            Console.WriteLine("\n---------------proc----------------");
             foreach (var p in proces)
                 Console.Write("{0}，", p.Key);
             Console.WriteLine();
@@ -238,7 +238,7 @@ namespace expression
                 if (sentence[j] == "else")
                 {
                     if (j == 0)
-                        throw new Exception("else 不能放在最前面");
+                        throw new Exception("expect if before else");
                     string[] t_cond = { "true" };
                     conditions.Add(t_cond);
                     j = i;
@@ -250,7 +250,7 @@ namespace expression
                     conditions.Add(cond);
                 }
                 i = j;
-                if (sentence[i] != "{") throw new Exception("if/elif/else 后面必须跟{...}语句块");
+                if (sentence[i] != "{") throw new Exception("if/elif/else expect {}");
                 j = Program.goForwardArg(sentence, j,"{}");
                 string[] token = Program.subTokens(sentence, i + 1, j - i - 2);
                 Block b = new Block(token);
@@ -305,7 +305,7 @@ namespace expression
             block = b;
             List<String[]> todos = Program.getAllArgs(Program.subTokens(head,1,head.Length-2));
             if (todos.Count != 3)
-                throw new Exception("for循环格式不正确");
+                throw new Exception("for syntax error");
             for (int i = 0; i < 3; i++)
                 todos[i] = Program.subTokens(todos[i], 1, todos[i].Length - 2);
             first = Program.insertToken(todos[0], todos[0].Length, ";");
@@ -350,12 +350,12 @@ namespace expression
             Frame funcFrame = new Frame(ref parentFrame);
             IExpression ret;
             if(values.Count!=args.Count || args[0].Length==0 && values[0].Length!=0)
-                throw new Exception("输入的参数数量不正确~");
+                throw new Exception("wrong argument number");
             for(int i=0;i<args.Count&&args[0].Length!=0;i++)
             {
                 string[] p = args[i];
                 if (p.Length != 2)
-                    throw new Exception("函数的参数定义得不正确~");
+                    throw new Exception("wrong parameter list");
                 string type = p[0], an = p[1];
                 switch (type)
                 {
@@ -376,16 +376,16 @@ namespace expression
                         funcFrame.arrs.Add(an, (Arr)Program.makeExpr(values[i],ref frame));
                         break;
                     default:
-                        throw new Exception("没有这个类型：" + type);
+                        throw new Exception("unknown type：" + type);
                 }
             }
             bool end = false;
             Program.processTokens(block.tokens, ref funcFrame,out ret,ref end,false);
             return ret;
         }
-        public double eval(Frame frame = null) { throw new Exception("Proc 对象不能求值"); }
-        public IExpression deriv(Variable x, ref Frame frame) { throw new Exception("Proc 对象不能求导"); }
-        public IExpression simplify() { throw new Exception("Proc 对象不能化简"); }
+        public double eval(Frame frame = null) { throw new Exception("Proc cannot be evaled"); }
+        public IExpression deriv(Variable x, ref Frame frame) { throw new Exception("Proc cannot be derived"); }
+        public IExpression simplify() { throw new Exception("Proc cannot be simplified"); }
         public string asString() { return ToString(); }
         public string name { get; set; }
         public int primarity { get { return 4; } }

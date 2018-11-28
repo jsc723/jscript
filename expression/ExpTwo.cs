@@ -97,7 +97,7 @@ namespace expression
         public override int primarity { get { return 2; } }
         public override IExpression deriv(Variable x, ref Frame frame)
         {
-            throw new Exception("求余运算不能求导");
+            throw new Exception("mod operation cannot be derived");
         }
         public override IExpression simplify()
         {

@@ -3,7 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-
+/*
+ * TODO
+ * 1) ! operation
+ * 2) rules about eval and print
+ * 3) for
+ * 4) merge return and return obj
+ * 5) standardlize syscalls (all should have ())
+ * 6) class 
+ */
 namespace expression
 
 {
@@ -100,7 +108,7 @@ namespace expression
                 i++;
             }
             if (prioToken(tokens[i]) == 4) i++;
-            if (tokens[i] != para[0].ToString()) throw new Exception("没有找到预期的括号！请检查表达式。");
+            if (tokens[i] != para[0].ToString()) throw new Exception("parentheses not matched");
             int count = 1;
             while (count != 0)
             {
@@ -114,7 +122,7 @@ namespace expression
         {
             int i = start;
             if (prioToken(tokens[i]) == 5) return i;
-            if (tokens[i] != ")") throw new Exception("没有找到预期的括号！请检查表达式。");
+            if (tokens[i] != ")") throw new Exception("expect )");
             int count = -1;
             while (count != 0)
             {
@@ -248,7 +256,7 @@ namespace expression
             {
                 Console.ReadKey();
             }
-            if (!paraMatchs(sentence)) throw new Exception("括号没对齐！");
+            if (!paraMatchs(sentence)) throw new Exception("parentheses not matched");
             sentence = addPara(sentence);
             if (isWholeArg(sentence))
                 return makeExpr(subTokens(sentence, 1, sentence.Length - 2),ref frame);
@@ -301,7 +309,7 @@ namespace expression
                         frame.strs.Add(term[0], (Str)makeExpr(subTokens(term,2),ref frame));
                     }
                     else
-                        throw new Exception("定义变量格式不正确");
+                        throw new Exception("str format error");
                 }
             }
             else if (sentence[0] == "func")
@@ -318,15 +326,15 @@ namespace expression
                 {
                     IExpression e = makeExpr(subTokens(sentence, 3), ref frame);
                     if (!(e is Procedure))
-                        throw new Exception("期望返回一个proc对象");
+                        throw new Exception("expect return a proc object");
                     frame.proces.Remove(sentence[1]);
                     frame.proces.Add(sentence[1], (Procedure)e);
                     return new Null();
                 }
-                if (sentence[2] != "(") throw new Exception("定义函数需要有参数列表");
+                if (sentence[2] != "(") throw new Exception("expect a parameter list");
                 int i = goForwardArg(sentence, 2);
                 string[] args = subTokens(sentence, 3, i - 4);
-                if (sentence[i] != "{") throw new Exception("定义函数必须用{...}语句块");
+                if (sentence[i] != "{") throw new Exception("expect {}");
                 int j = goForwardArg(sentence, i, "{}");
                 string[] token = subTokens(sentence, i + 1, j - i - 2);
                 Block b = new Block(token);
@@ -340,10 +348,10 @@ namespace expression
             #region for/while
             else if (sentence[0] == "while" || sentence[0] == "for")
             {
-                if (sentence[1] != "(") throw new Exception("while/for 后面要加括号");
+                if (sentence[1] != "(") throw new Exception("while/for expect ()");
                 int i = goForwardArg(sentence, 1);
                 string[] cond = subTokens(sentence, 1, i - 1);
-                if (sentence[i] != "{") throw new Exception("while/for 后面必须跟{...}语句块");
+                if (sentence[i] != "{") throw new Exception("while/for expect {}");
                 int j = goForwardArg(sentence, i, "{}");
                 string[] token = subTokens(sentence, i + 1, j - i - 2);
                 Block b = new Block(token);
@@ -359,7 +367,7 @@ namespace expression
             #endregion
             else if (sentence[0] == "print")
             {
-                if (sentence.Length < 1 || sentence[1] != "(") throw new Exception("调用print后面要加括号");
+                if (sentence.Length < 1 || sentence[1] != "(") throw new Exception("print expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
@@ -372,15 +380,15 @@ namespace expression
             else if (sentence[0] == "inputNum")
             {
                 if (sentence[1] != "(")
-                    throw new Exception("调用inputNum后面要加括号");
+                    throw new Exception("inputNum expect ()");
                 List<string[]> args = splitTokens(subTokens(sentence, 2, sentence.Length - 3), ",");
                 if (args.Count != 1)
-                    throw new Exception("inputNum 参数数量不正确");
+                    throw new Exception("inputNum wrong argument number");
                 if (tokenIsNumber(args[0][0]))
-                    throw new Exception("inputNum 参数必须是变量");
+                    throw new Exception("inputNum argument must be a variable");
                 if (frame.containsVar(args[0][0]))
                     frame.setVarValue(args[0][0], Convert.ToDouble(Console.ReadLine()));
-                else throw new Exception("变量\"" + args[0][0] + "\"还没有定义");
+                else throw new Exception("variable\"" + args[0][0] + "\"is not defined");
             }
             else if (firstIndexInTokens("=", sentence) > 0)
             {
@@ -430,7 +438,7 @@ namespace expression
                 {
                     IExpression e = makeExpr(subTokens(sentence, 2), ref frame);
                     if (!(e is Procedure))
-                        throw new Exception("期望返回一个proc对象");
+                        throw new Exception("expect return a proc object");
                     frame.setProc(sentence[0], (Procedure)e);
                 }
             }
@@ -438,7 +446,7 @@ namespace expression
             else if (sentence[0] == "append")//把一个对象加到数组后面，如果没有指定加什么，默认加Null
             {
                 if (!frame.containsArr(sentence[1]))
-                    throw new Exception("找不到数组：" + sentence[1]);
+                    throw new Exception("can not find array：" + sentence[1]);
                 IExpression temp;
                 if (sentence.Length > 2)
                     temp = makeExpr(subTokens(sentence, 2), ref frame);
@@ -476,7 +484,7 @@ namespace expression
                 if (sentence.Length == 2)
                     processTokens(toTokens("print(" + sentence[1] + ");"), ref frame, out nul, ref end);
                 if (sentence.Length > 2)
-                    throw new Exception("pause 参数太多");
+                    throw new Exception("pause too mush arguments");
                 Console.ReadKey();
             }
             else if (sentence[0] == "breakpoint")
@@ -512,7 +520,7 @@ namespace expression
             }
             else
             {
-                throw new Exception("不知道要干嘛 ：" + sentence);
+                throw new Exception("can not recognize the command：" + sentence);
             }
             return new Null();
         }
@@ -564,7 +572,7 @@ namespace expression
         }
         static public IExpression makeExpr(string[] sentence,ref Frame frame)
         {
-            if (!paraMatchs(sentence)) throw new Exception("括号没对齐");
+            if (!paraMatchs(sentence)) throw new Exception("() not matched");
             
             IExpression arg1, arg2;
             int i,j;
@@ -576,7 +584,7 @@ namespace expression
                     return new Str(temp);
                 }
                 if(prioToken(sentence[0]) != 5)
-                    throw new Exception("操作符参数不正确！请检查表达式。");
+                    throw new Exception("syntax error");
                 if(tokenIsNumber(sentence[0]))
                     return new Number(Convert.ToDouble(sentence[0]));
                 if (frame.containsVar(sentence[0]))
@@ -595,32 +603,32 @@ namespace expression
                 return makeExpr(subTokens(sentence, 1, sentence.Length - 2),ref frame);
             if (sentence[0] == "deriv")
             {
-                if (sentence.Length<1||sentence[1] != "(") throw new Exception("调用deriv后面要加括号");
+                if (sentence.Length<1||sentence[1] != "(") throw new Exception("deriv expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
                 if (devidedArgs.Count != 2)
-                    throw new Exception("deriv需要两个参数");
+                    throw new Exception("deriv takes 2 arguments");
                 if (devidedArgs[1].Length != 1)
-                    throw new Exception("deriv第二项必须是一个变量");
+                    throw new Exception("deriv 2nd arguments have to be a single var");
                 if (!frame.containsVar(devidedArgs[1][0]))
-                    throw new Exception("变量\"" + devidedArgs[1][0] + "\"还没有定义)");
+                    throw new Exception("variable\"" + devidedArgs[1][0] + "\"is not defined");
                 if (devidedArgs.Count == 2)
                     return makeExpr(devidedArgs[0], ref frame).deriv(frame.getVar(devidedArgs[1][0]),ref frame);
             }
             if (sentence[0] == "eval")
             {
-                if (sentence.Length < 1 || sentence[1] != "(") throw new Exception("调用eval后面要加括号");
+                if (sentence.Length < 1 || sentence[1] != "(") throw new Exception("eval expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
                 if (devidedArgs.Count != 1)
-                    throw new Exception("eval只能有一个参数");
+                    throw new Exception("eval takes 1 argument");
                 return new Number(makeExpr(devidedArgs[0],ref frame).eval(frame));
             }
             if (frame.containsProc(sentence[0]) && isWholeArg(subTokens(sentence,1)))
             {
-                if (sentence[1] != "(") throw new Exception("调用proc后面要加括号");
+                if (sentence[1] != "(") throw new Exception("proc expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 IExpression r = frame.getProc(sentence[0]).call(args,ref frame);
@@ -644,7 +652,7 @@ namespace expression
             else if (firstIndexInTokens(sentence[0], Tools.fours) >= 0)
             {
                 if (sentence[1] != "(")
-                    throw new Exception("没有找到预期的括号！请检查表达式。");
+                    throw new Exception("expect (");
                 if (sentence[0] == "log")
                 {
                     i = goForwardArg(sentence, 2);
@@ -671,7 +679,7 @@ namespace expression
                     if (s == "int")
                         return new Int(arg1);
                     else
-                        throw new Exception("现在还不支持函数：" + s);
+                        throw new Exception("unknown function：" + s);
                 }
             }
             else
@@ -694,7 +702,7 @@ namespace expression
                 if (s == "^")
                     return Tools.makePow(arg1, arg2);
                 else
-                    throw new Exception("现在还不支持函数：" + s);
+                    throw new Exception("unknown operation：" + s);
             }
         }
         static public bool paraMatchs(string[] sentence , string para = "()")
@@ -788,7 +796,7 @@ namespace expression
                 i = buf.IndexOf('\"',j);
                 if (i < 0) break;
                 j = buf.IndexOf('\"', i + 1);
-                if (j < 0) throw new Exception("引号没对齐");
+                if (j < 0) throw new Exception("quotes not matched");
                 temp = buf.Substring(i, j - i + 1);
                 doneBuf = doneBuf.Replace(temp, "_REP_" + count.ToString());
                 record.Add(temp);
@@ -829,7 +837,7 @@ namespace expression
                 //string path = "helloworld.jsc";
                 //string path = __path__;
                 if (!File.Exists(path))
-                    Console.WriteLine("文件不存在哦");
+                    Console.WriteLine("file not found");
                 StreamReader sr = File.OpenText(path);
                 while (true)
                 {

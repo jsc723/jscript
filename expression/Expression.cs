@@ -27,9 +27,9 @@ namespace expression
     }
     public class Null : ExpZero
     {
-        public override double eval(Frame frame = null) { throw new Exception("Null对象不能求值"); }
+        public override double eval(Frame frame = null) { throw new Exception("Null can not be evaled"); }
         public override IExpression deriv(Variable v,ref Frame frame)
-        { throw new Exception("Null对象不能求导"); }
+        { throw new Exception("Null cannot be derived"); }
         public override string asString() { return "null"; }
         public override string name { get { return asString(); } set { } }
     }
@@ -63,7 +63,7 @@ namespace expression
             else
                 ((Arr)array[indexs[current]]).setItem(indexs, current + 1, value);
         }
-        public override double eval(Frame frame = null) { throw new Exception("Array对象不能求值"); }
+        public override double eval(Frame frame = null) { throw new Exception("Array can not be evaled"); }
         public override IExpression deriv(Variable v,ref Frame frame) 
         {
             Arr temp = new Arr();
@@ -109,9 +109,9 @@ namespace expression
         {
             this.value = value;
         }
-        public override double eval(Frame frame = null) { throw new Exception("String对象不能求值"); }
+        public override double eval(Frame frame = null) { throw new Exception("String cannot be evaled"); }
         public override IExpression deriv(Variable v,ref Frame frame)
-        { throw new Exception("String对象不能求导"); }
+        { throw new Exception("String cannot be derived"); }
         public override string asString() { return value; }
         public override string name { get; set; }
         public string value;
@@ -141,7 +141,7 @@ namespace expression
                 return frame.getVarValue(name);
             if (frame.containsFunc(name))
                 return frame.getFunc(name).eval(frame);
-            throw new Exception("变量\""+name+"\"还没有被赋值");
+            throw new Exception("variable\""+name+"\"undefined");
         }
         public override IExpression deriv(Variable v,ref Frame frame)
         {
@@ -206,7 +206,7 @@ namespace expression
             }
             return e;
         }
-        //equalStruct: cos(u(3x)) == 2cos(u(3x), cos(u(3x)) == cos(u(3x))/3 , 2 == 3,cos(u(3x)) != cos(u(x))
+        //equalStruct: cos(u(3x)) == 2cos(u(3x)), cos(u(3x)) == cos(u(3x))/3 , 2 == 3,cos(u(3x)) != cos(u(x))
         //是不是同类项
         public static bool equalStruct(IExpression e1, IExpression e2)
         {
@@ -360,7 +360,7 @@ namespace expression
                 else if (mid == "!=")
                     return sl.asString().CompareTo(sr.asString()) != 0;
                 else if (mid == "<<")
-                    return sl.asString().CompareTo(sr.asString())<0;
+                    return sl.asString().CompareTo(sr.asString()) < 0;
                 else if (mid == ">>")
                     return sl.asString().CompareTo(sr.asString()) > 0;
                 else if (mid == "<=")
