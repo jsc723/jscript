@@ -12,8 +12,8 @@ namespace expression
             bool omit = false,needpr = false;
             if (u is Number && (v is Variable || v is ExpOne)) omit = true;
             string left = u.asString(), right = v.asString(),mid = this.name;
-            if (needpr || u.primarity < this.primarity) left = "(" + left + ")";
-            if (needpr || v.primarity <= this.primarity) right = "(" + right + ")";
+            if (needpr || u.priority < this.priority) left = "(" + left + ")";
+            if (needpr || v.priority <= this.priority) right = "(" + right + ")";
             if (mid == "*" && omit && !(Tools.charIsNumber(left[left.Length - 1]) && Tools.charIsNumber(right[0])))
                 mid = "";
             return left + mid + right;
@@ -23,7 +23,7 @@ namespace expression
         public abstract IExpression simplify();
         public IExpression u,v;
         public string name { get; set; }
-        public abstract int primarity { get; }
+        public abstract int priority { get; }
     }
     public class Add : ExpTwo
     {
@@ -33,7 +33,7 @@ namespace expression
         }
         public override double eval(Frame frame = null)
         { return u.eval(frame) + v.eval(frame); }
-        public override int primarity { get { return 1; } }
+        public override int priority { get { return 1; } }
         public override IExpression deriv(Variable x ,ref Frame frame)
         { return Tools.makeAdd(u.deriv(x,ref frame), v.deriv(x,ref frame)); }
         public override IExpression simplify()
@@ -47,7 +47,7 @@ namespace expression
         { u = e1; v = e2; name = "-"; }
         public override double eval(Frame frame = null)
         { return u.eval(frame) - v.eval(frame); }
-        public override int primarity { get { return 1; } }
+        public override int priority { get { return 1; } }
         public override IExpression deriv(Variable x,ref Frame frame)
         { return Tools.makeSub(u.deriv(x,ref frame), v.deriv(x,ref frame)); }
         public override IExpression simplify()
@@ -61,7 +61,7 @@ namespace expression
         { u = e1; v = e2; name = "*"; }
         public override double eval(Frame frame = null)
         { return u.eval(frame) * v.eval(frame); }
-        public override int primarity { get { return 2; } }
+        public override int priority { get { return 2; } }
         public override IExpression deriv(Variable x,ref Frame frame) 
         { return Tools.makeAdd(Tools.makeMul(u.deriv(x,ref frame),v), Tools.makeMul(u, v.deriv(x,ref frame))); }
         public override IExpression simplify()
@@ -75,7 +75,7 @@ namespace expression
         { u = e1; v = e2; name = "/"; }
         public override double eval(Frame frame = null)
         { return u.eval(frame) / v.eval(frame); }
-        public override int primarity { get { return 2; } }
+        public override int priority { get { return 2; } }
         public override IExpression deriv(Variable x, ref Frame frame)
         {
             IExpression t1 = u.deriv(x, ref frame);
@@ -94,7 +94,7 @@ namespace expression
         { u = e1; v = e2; name = "%"; }
         public override double eval(Frame frame = null)
         { return (int)u.eval(frame) % (int)v.eval(frame); }
-        public override int primarity { get { return 2; } }
+        public override int priority { get { return 2; } }
         public override IExpression deriv(Variable x, ref Frame frame)
         {
             throw new Exception("mod operation cannot be derived");
@@ -110,7 +110,7 @@ namespace expression
         { u = e1; v = e2; name = "^"; }
         public override double eval(Frame frame = null)
         { return  Math.Pow(u.eval(frame) , v.eval(frame)); }
-        public override int primarity { get { return 3; } }
+        public override int priority { get { return 3; } }
         public override IExpression deriv(Variable x,ref Frame frame)
         {
             if (v is Number)
@@ -141,7 +141,7 @@ namespace expression
         { u = e1; v = e2; name = "log"; }
         public override double eval(Frame frame = null)
         { return Math.Log(v.eval(frame),u.eval(frame)); }
-        public override int primarity { get { return 4; } }
+        public override int priority { get { return 4; } }
         public override IExpression deriv(Variable x,ref Frame frame)
         {
             if (u is Number)

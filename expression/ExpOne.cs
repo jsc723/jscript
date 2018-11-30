@@ -15,7 +15,7 @@ namespace expression
         public abstract IExpression simplify();
         public IExpression u;
         public string name{get;set;}
-        public int primarity { get { return 4; } }
+        public int priority { get { return 4; } }
     }
     public class Exp :ExpOne
     {

@@ -213,6 +213,22 @@ namespace expression
         {
             parent = p;
         }
+        public Frame(ref Frame p, string[] strFrame)
+        {
+            parent = p;
+            List<string[]> ss = Program.getAllArgs(strFrame);
+            if (ss[0].Length == 0)
+                return;
+            foreach (var s in ss)
+            {
+                if(s.Length < 3 || s[1] != "=")
+                    throw new Exception("frame: wrong format");
+                string[] sub = Program.subTokens(s, 2);
+                IExpression r = Program.makeExpr(sub, ref p);
+                varValues.Add(s[0], r.eval(this));
+                vars.Add(s[0], new Variable(s[0]));
+            }
+        }
     }
     public class Block
     {
@@ -339,6 +355,13 @@ namespace expression
         {
             this.name = name;
             this.args = Program.splitTokens(arg_names,",");
+            for(int i = 0; i < args.Count; i++)
+            {
+                if(args[i].Length == 1)
+                    args[i] = Program.insertToken(args[i], 0, "var");
+                if (args[i].Length != 2)
+                    throw new Exception("syntax error in parameter list");
+            }
             this.block = b;
             this.parentFrame = frame;
         }
@@ -386,6 +409,6 @@ namespace expression
         public IExpression simplify() { throw new Exception("Proc cannot be simplified"); }
         public string asString() { return ToString(); }
         public string name { get; set; }
-        public int primarity { get { return 4; } }
+        public int priority { get { return 4; } }
     }
 }

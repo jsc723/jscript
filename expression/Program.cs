@@ -5,12 +5,18 @@ using System.Text;
 using System.IO;
 /*
  * TODO
- * - ! operation                                    [DONE]
+ * ------2.0.b1------
+ * - not() operation                                [DONE]
  * - rules about eval and print                     [DONE]
  * - for                                            [DONE]
- * - merge return and return obj
- * - standardlize syscalls (all should have ())
- * - class 
+ * ------2.0.b2------
+ * - var default value                              [DONE]
+ * - combine return and return obj                  [DONE]
+ * - recursive higher order function call           [DONE]
+ * - standardlize syscalls                          [DOING]
+ * - eval                                           []
+ * ------2.0.b3------
+ * - class                                          []
  */
 namespace expression
 
@@ -21,7 +27,7 @@ namespace expression
         static bool __step__ = false;
         static bool __forcePath__ = false;
         static string __path__ = "tictactoe.jsc";
-        static string __version__ = "2.0.beta1";
+        static string __version__ = "2.0.beta-2";
         static string __myname__ = "Sicheng Jiang";
         static string __myEmail__ = "jscjsc723723@163.com";
         static string __releaseTime__ = "2018.11.27";
@@ -82,21 +88,28 @@ namespace expression
                 return mergeArray(tokens, t);
             return mergeArray(mergeArray(subTokens(tokens, 0, index), t), subTokens(tokens, index));
         }
+
         static public void printTokens(string[] tokens)
         {
             foreach (string s in tokens)
                 Console.Write("{0} ", s);
             Console.WriteLine();
         }
-        static public int firstIndexInTokens(string s,string[] tokens)
+
+        static public int firstIndexInTokens(string s, string[] tokens)
         {
             for (int i = 0; i < tokens.Length; i++)
                 if (tokens[i] == s) return i;
             return -1;
         }
-        static public int goForwardArg(string[] tokens, int start,string para = "()")
+        /* 
+         * one arg: [a-zA-Z][a-zA-Z0-9]*(\(.*\))*  
+         */
+        static public int goForwardArg(string[] tokens, int start,string para = "()", bool multiPara = true)
         {
             int i=start;
+            string left = para[0].ToString();
+            string right = para[1].ToString();
             if (tokens[i] == "=")
                 return i + 1;
             if (prioToken(tokens[i]) == 5)
@@ -108,32 +121,46 @@ namespace expression
                 i++;
             }
             if (prioToken(tokens[i]) == 4) i++;
-            if (tokens[i] != para[0].ToString()) throw new Exception("parentheses not matched");
-            int count = 1;
-            while (count != 0)
+            if (tokens[i] != left) throw new Exception("expect (");
+            do
             {
+                int count = 1;
+                while (count != 0)
+                {
+                    i++;
+                    if (i >= tokens.Length) throw new Exception(para + " not matched");
+                    if (tokens[i] == left) count++;
+                    else if (tokens[i] == right) count--;
+                }
                 i++;
-                if (tokens[i] == para[0].ToString()) count++;
-                if (tokens[i] == para[1].ToString()) count--;
-            }
-            return i + 1;
+            } while (i < tokens.Length && tokens[i] == left && multiPara);
+            return i;
         }
-        static public int goBackArg(string[] tokens, int start)
+        /* get the begining for the arg ends at start (inclusive) */
+        static public int goBackArg(string[] tokens, int start, string para = "()")
         {
             int i = start;
+            string left = para[0].ToString();
+            string right = para[1].ToString();
             if (prioToken(tokens[i]) == 5) return i;
-            if (tokens[i] != ")") throw new Exception("expect )");
-            int count = -1;
-            while (count != 0)
+            if (tokens[i] != right) throw new Exception("expect " + right);
+            do
             {
+                int count = -1;
+                while (count != 0)
+                {
+                    i--;
+                    if (i < 0) throw new Exception(para + " not matched");
+                    if (tokens[i] == "(") count++;
+                    else if (tokens[i] == ")") count--;
+                }
                 i--;
-                if (tokens[i] == "(") count++;
-                if (tokens[i] == ")") count--;
-            }
-
+            } while (i >= 0 && tokens[i] == right);
+            i++;
             if (i>0 && prioToken(tokens[i-1]) >= 4)i--;
             return i;
         }
+
         static public bool tokenIsNumber(string token)
         {
             foreach(var c in token)
@@ -143,6 +170,7 @@ namespace expression
             }
             return true;
         }
+
         static public bool isWholeArg(string[] tokens)
         {
             if (tokens[0] != "(")
@@ -151,6 +179,7 @@ namespace expression
             i = goForwardArg(tokens, 0);
             return i == tokens.Length;
         }
+
         public static List<string[]> getAllArgs(string[] all_args, string delim = ",")
         {
             all_args = Program.addPara(all_args);
@@ -159,6 +188,7 @@ namespace expression
                 ss.Add(new string[0]);
             return ss;
         }
+
         static public int prioToken(string token)
         {
             if (firstIndexInTokens(token, Tools.fours) >= 0) return 4;
@@ -169,8 +199,10 @@ namespace expression
             if (firstIndexInTokens(token, Tools.negones) >= 0) return -1;
             if (firstIndexInTokens(token, Tools.negtwos) >= 0) return -2;
             if (firstIndexInTokens(token, Tools.paras) >= 0) return -3;
+            if (firstIndexInTokens(token, Tools.negFours) >= 0) return -4;
             return 5;
         }
+
         static public List<string[]> splitTokens(string[] tokens, string key)
         {
             List<string[]> result = new List<string[]>();
@@ -188,6 +220,7 @@ namespace expression
             result.Add(tokens);
             return result;
         }
+
         static public string[] readCommond()
         {
             string buf;
@@ -204,6 +237,7 @@ namespace expression
             } while (!(paraMatchs(tokens, "{}") && paraMatchs(tokens)));
             return tokens;
         }
+
         static public string[] readCommondInFile(StreamReader sr)
         {
             string buf;
@@ -216,6 +250,7 @@ namespace expression
             } while (!(paraMatchs(tokens, "{}") && paraMatchs(tokens)));
             return tokens;
         }
+
         static public string[] processTokens(string[] tokens,ref Frame frame,out IExpression ret,ref bool end ,bool print = true)
         {
             int i = 0;
@@ -246,6 +281,7 @@ namespace expression
             ret = r;
             return tokens;
         }
+
         static public IExpression processSentence(string[] sentence,ref Frame frame,ref bool end)
         {
             if (__debug__)
@@ -270,11 +306,11 @@ namespace expression
                 {
                     frame.vars.Remove(term[0]);
                     frame.vars.Add(term[0], new Variable(term[0]));
+                    frame.varValues.Remove(term[0]);
                     if (term.Length >1)
-                    {
-                        frame.varValues.Remove(term[0]);
                         frame.varValues.Add(term[0], makeExpr(subTokens(term, 2), ref frame).eval(frame));
-                    }
+                    else
+                        frame.varValues.Add(term[0], 0); //default value is 0
                 }
             }
             else if (sentence[0] == "arr")
@@ -319,7 +355,7 @@ namespace expression
                 IExpression e = makeExpr(subTokens(sentence, 3), ref frame);
                 frame.funcs.Remove(sentence[1]);
                 frame.varValues.Remove(sentence[1]);
-                frame.funcs.Add(sentence[1],e);
+                frame.funcs.Add(sentence[1], e);
             }
             else if (sentence[0] == "proc")
             {
@@ -402,7 +438,7 @@ namespace expression
                     frame.setVarValue(args[0][0], Convert.ToDouble(Console.ReadLine()));
                 else throw new Exception("variable\"" + args[0][0] + "\"is not defined");
             }
-            else if (firstIndexInTokens("=", sentence) > 0)
+            else if (sentence.Length >= 3 && sentence[1] == "=")
             {
                 if (frame.containsVar(sentence[0]))
                 {
@@ -455,7 +491,7 @@ namespace expression
                 }
             }
 
-            else if (sentence[0] == "append")//把一个对象加到数组后面，如果没有指定加什么，默认加Null
+            else if (sentence[0] == "append")//把一个对象加到数组后面，如果没有指定加什么，默认加Null TODO
             {
                 if (!frame.containsArr(sentence[1]))
                     throw new Exception("can not find array：" + sentence[1]);
@@ -469,9 +505,19 @@ namespace expression
             else if (sentence[0] == "return")
             {
                 end = true;
-                if (sentence[1] == "obj")
-                    return makeExpr(subTokens(sentence, 2), ref frame);
-                return new Number(makeExpr(subTokens(sentence, 1), ref frame).eval(frame));
+                string[] sub = subTokens(sentence, 1);
+                if (sub.Length == 1 && frame.containsFunc(sub[0]))
+                    return frame.getFunc(sub[0]);
+                IExpression r;
+                try
+                {
+                    r = new Number(makeExpr(sub, ref frame).eval(frame));
+                }
+                catch
+                {
+                    r = makeExpr(sub, ref frame);
+                }
+                return r;
             }
             else if (sentence[0] == "break")
             {
@@ -479,18 +525,21 @@ namespace expression
             }
             else if (sentence[0] == "determine")
             {
+                if (sentence.Length == 1 || !isWholeArg(subTokens(sentence, 1)))
+                    throw new Exception("syntax error in determine: expect determine(...)");
                 Console.WriteLine("{0}", Tools.determine(subTokens(sentence, 2, sentence.Length - 3), frame));
             }
-            else if (sentence[0] == "enviro")
+            else if (sentence[0] == "enviro") 
             {
+                if(sentence.Length == 1 || !isWholeArg(subTokens(sentence, 1)))
+                    throw new Exception("syntax error in enviro: expect enviro()");
                 frame.showFrame();
-                return new Null();
             }
             else if (sentence[0] == "deriv" || sentence[0] == "eval")
             {
                 return makeExpr(sentence, ref frame);
             }
-            else if (sentence[0] == "pause")
+            else if (sentence[0] == "pause") //TODO
             {
                 IExpression nul;
                 if (sentence.Length == 2)
@@ -536,12 +585,14 @@ namespace expression
             }
             return new Null();
         }
+
         static public bool stringisKeyInDic<T>(string key , Dictionary<string,T> dic)
         {
             foreach (var p in dic)
                 if (key == p.Key) return true;
             return false;
         }
+
         static public string[] addPara(string[] sentence)
         {
             int i = 0,j = 0;
@@ -611,8 +662,10 @@ namespace expression
                     return frame.getProc(sentence[0]);
                 return new Variable(sentence[0]);
             }
-            if (isWholeArg(sentence)) 
-                return makeExpr(subTokens(sentence, 1, sentence.Length - 2),ref frame);
+            if (isWholeArg(sentence))
+            {
+                return makeExpr(subTokens(sentence, 1, sentence.Length - 2), ref frame);
+            }
             if (sentence[0] == "deriv")
             {
                 if (sentence.Length<1||sentence[1] != "(") throw new Exception("deriv expect ()");
@@ -634,17 +687,35 @@ namespace expression
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
-                if (devidedArgs.Count != 1)
-                    throw new Exception("eval takes 1 argument");
-                return new Number(makeExpr(devidedArgs[0],ref frame).eval(frame));
+                //TODO: extend eval's frame
+                return new Number(makeExpr(devidedArgs[0], ref frame).eval(frame));
             }
-            if (frame.containsProc(sentence[0]) && isWholeArg(subTokens(sentence,1)))
+            if (sentence[0] == "return")
+            {
+                throw new Exception("return syntax error: try 'return(<expr>)'");
+            }
+            if (frame.containsProc(sentence[0]) && goForwardArg(sentence, 1) >= sentence.Length)
             {
                 if (sentence[1] != "(") throw new Exception("proc expect ()");
+                int k = 1, m;
+                IExpression r = frame.getProc(sentence[0]);
+                do
+                {
+                    Procedure proc = (Procedure)r;
+                    m = goForwardArg(sentence, k, "()", false);
+                    string[] args = subTokens(sentence, k + 1, m - k - 2);
+                    r = proc.call(args, ref frame);
+                    k = m;
+                } while (k < sentence.Length);
+                return r;
+            }
+            else if(frame.containsFunc(sentence[0]) && isWholeArg(subTokens(sentence, 1)))
+            {
+                if (sentence[1] != "(") throw new Exception("func expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
-                IExpression r = frame.getProc(sentence[0]).call(args,ref frame);
-                return r;
+                Frame funcFrame = new Frame(ref frame, args);
+                return new Number(frame.getFunc(sentence[0]).eval(funcFrame));
             }
             else if (frame.containsArr(sentence[0]) && isWholeArg(subTokens(sentence, 1)))
             {
@@ -835,6 +906,7 @@ namespace expression
                         tokens = processTokens(tokens, ref Tools.globalFrame, out nul,ref end);
                     }
                     catch (Exception e)
+
                     {
                         if (e.Message == "END")
                             break;

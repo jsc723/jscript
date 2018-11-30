@@ -14,7 +14,7 @@ namespace expression
         IExpression simplify();
         string asString();
         string name { get; }
-        int primarity { get; }
+        int priority { get; }
     }
     public abstract class ExpZero : IExpression
     {
@@ -23,7 +23,7 @@ namespace expression
         public IExpression simplify() { return this; }
         public abstract string asString();
         public abstract string name { get; set; }
-        public int primarity { get { return 5; } }
+        public int priority { get { return 5; } }
     }
     public class Null : ExpZero
     {
@@ -168,6 +168,7 @@ namespace expression
         static public string[] negones = { "&&", "||" };
         static public string[] negtwos = { "=" };
         static public string[] paras = { "(", ")","{","}"};
+        static public string[] negFours = { "return" };
         static public Frame globalFrame = new Frame();
         public static void print(IExpression e) { Console.WriteLine(e.asString()); }
         
