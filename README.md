@@ -1,5 +1,5 @@
 # jscript
-a simple interpretive language
+a simple interpreted language
 
 This language is first designed to find the mathematical derivatives of a math funcition depending 
 on several variables. It can find partial derivatives. Even if f(u,v), u(x,y), v(x,y), it can find 
