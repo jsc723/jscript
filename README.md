@@ -17,7 +17,7 @@ There is an example in /examples folder.
 
 The documentation for v1.1 is here (in Chinese), the current version has more than that, 
 but I didn't have a change to write a documentation for it. 
-
+```
     	      JScript 用户手册
 --------------------前言--------------------
 
@@ -67,7 +67,7 @@ str s1 = "aa"+"bb"; #错误
 比较运算符：
 ==  !=  <  >  <= >=
 || &&
-不过没有取反运算符”！“
+不过没有取反运算符"！"
 
 赋值运算符：
 =
@@ -292,5 +292,5 @@ pause "请按任意键继续";
 var x = 3;
 arr x[2];
 delete x; #var x和arr x都被删除了
-
+```
 
