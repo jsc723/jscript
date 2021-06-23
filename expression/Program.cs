@@ -13,9 +13,10 @@ using System.IO;
  * - var default value                              [DONE]
  * - combine return and return obj                  [DONE]
  * - recursive higher order function call           [DONE]
- * - standardlize syscalls                          [DOING]
- * - eval                                           []
+ * - standardlize syscalls                          [DONE]
  * ------2.0.b3------
+ * - eval                                           []
+ * - ICallable                                      []
  * - class                                          []
  */
 namespace expression
@@ -539,27 +540,29 @@ namespace expression
             {
                 return makeExpr(sentence, ref frame);
             }
-            else if (sentence[0] == "pause") //TODO
+            else if (sentence[0] == "pause") 
             {
-                IExpression nul;
-                if (sentence.Length == 2)
-                    processTokens(toTokens("print(" + sentence[1] + ");"), ref frame, out nul, ref end);
-                if (sentence.Length > 2)
-                    throw new Exception("pause too mush arguments");
+                if (sentence.Length == 1 || !isWholeArg(subTokens(sentence, 1)))
+                    throw new Exception("syntax error in pause: expect pause(<expr>)");
+                sentence[0] = "print";
+                processSentence(sentence, ref frame, ref end);
                 Console.ReadKey();
             }
             else if (sentence[0] == "breakpoint")
             {
 
             }
-            else if (sentence[0] == "delete")
+            else if (sentence[0] == "delete") //TODO
             {
-                frame.vars.Remove(sentence[1]);
-                frame.varValues.Remove(sentence[1]);
-                frame.strs.Remove(sentence[1]);
-                frame.arrs.Remove(sentence[1]);
-                frame.funcs.Remove(sentence[1]);
-                frame.proces.Remove(sentence[1]);
+                if (sentence.Length != 4 || sentence[1] != "(" || sentence[3] != ")")
+                    throw new Exception("syntax error in delete: expect delete(<name>)");
+                string name = sentence[2];
+                frame.vars.Remove(name);
+                frame.varValues.Remove(name);
+                frame.strs.Remove(name);
+                frame.arrs.Remove(name);
+                frame.funcs.Remove(name);
+                frame.proces.Remove(name);
             }
             else if (frame.containsVar(sentence[0]))
                 return new Number(frame.getVar(sentence[0]).eval(frame));
