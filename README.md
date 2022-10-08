@@ -2,7 +2,7 @@
 a simple interpreted language
 
 This language is first designed to find the mathematical derivatives of a math funcition depending 
-on several variables. It can find partial derivatives. Even if f(u,v), u(x,y), v(x,y), it can find 
+on several variables. It can find partial derivatives. For example, if f(u,v), u(x,y), v(x,y), it can find 
 df/dx, df/dy using chain rule.
 
 This language can also be used for other purposes. It has control structures such as if/while/for. 
@@ -16,7 +16,7 @@ so it is still usable.
 There is an example in /examples folder.
 
 The documentation for v1.1 is here (in Chinese), the current version has more than that, 
-but I didn't have a change to write a documentation for it. 
+but I didn't have a chance to write a documentation for it. 
 ```
     	      JScript 用户手册
 --------------------前言--------------------
