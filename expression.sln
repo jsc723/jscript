@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "expression", "expression\expression.csproj", "{7C56509D-1331-4DB5-A7AB-6D91205DCE86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J-Sript", "expression\J-Sript.csproj", "{7C56509D-1331-4DB5-A7AB-6D91205DCE86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,12 +13,12 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Debug|x64.ActiveCfg = Release|x64
-		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Debug|x64.Build.0 = Release|x64
+		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Debug|x64.Build.0 = Debug|Any CPU
 		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Debug|x86.Build.0 = Debug|Any CPU
-		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Release|x64.ActiveCfg = Debug|x64
-		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Release|x64.Build.0 = Debug|x64
+		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Release|x64.ActiveCfg = Release|Any CPU
+		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Release|x64.Build.0 = Release|Any CPU
 		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Release|x86.ActiveCfg = Release|Any CPU
 		{7C56509D-1331-4DB5-A7AB-6D91205DCE86}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection

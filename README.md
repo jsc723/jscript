@@ -1,203 +1,247 @@
-# jscript
-a simple interpreted language
+# J-Script
+## Introduction
 
-This language is first designed to find the mathematical derivatives of a math funcition depending 
-on several variables. It can find partial derivatives. For example, if f(u,v), u(x,y), v(x,y), it can find 
-df/dx, df/dy using chain rule.
+This is a simple interpreted language that I wrote a few years ago for educational purpose. 
 
-This language can also be used for other purposes. It has control structures such as if/while/for. 
-It also has strings and arrays (may be multi-dimentional). And it is able to define functions and call them.
+This language is first designed to find the mathematical derivatives (including partial derivatives) of mathematical functions. For example, if there is two variable x and y, and we define functions u:=sin(x)\*y, v:=x\*cos(y), f:=u+v, the language can easily find the mathematical form of df/dx (=y\*cos(x)+cos(y)), df/dy (=sin(x)-x\*sin(y)) using chain rule.
 
-This language is functional, but it is not good at error detecting. If the code is not well written,
-the interpretor may not give an informative message and may crash. This is due to the insufficient
-lexical analysis and parse tree building. However, there is no obvious bug in the interpretor, 
-so it is still usable.
+This language can also be used for general purposes. It has control structures such as if/while/for. 
+It also has strings and arrays (may be multi-dimensional) and functions!
 
-There is an example in /examples folder.
+Some weaknesses of this language: It is not good at detecting syntax error. If the code is not well written, the interpreter may not give any informative message and may simply crash. This is due to the insufficient lexical analysis and parse tree building. The code is also not optimized for performance. 
 
-The documentation for v1.1 is here (in Chinese), the current version has more than that, 
-but I didn't have a chance to write a documentation for it. 
+However, there is no obvious bug in the interpreter, so it is still usable.
+
+There is an example in `/examples` folder.
+
+## Documentation
+
+#### Chapter 0: Run the interperater
+
+1. Interactive mode: simply double click the exe file
+2. Script mode: enter command `J-Script.exe <script_name>.jsc`
+
+#### Chapter 1: Variables
+
+Use keyword `var` to define a variable
+1. define a variable without initialization：
+
+  ```
+  var a;
+  ```
+
+2. define multiple variables without initialization：
+
+  ```
+  var a,b,c;
+  ```
+
+3. define variable with initialization：
+
+  ```
+  var a = 1;
+  var b = 1+3*2, c, d = 4-9;
+  var e = (a+b)*2; #can use other variables to initialize
+  ```
+
+  Each statement ends with a semicolon ( `;`).
+  You can put multiple statements in a single line.
+  contents after `#` in a line is treated as comments.
+
+#### Chapter 2: Strings 
+
+Use keyword `str` to define strings
+
 ```
-    	      JScript 用户手册
---------------------前言--------------------
-
-JScript是我以学习为目的制作的一款类似于python的简单的、开源的脚本语言。功能十分有限。仅供学习交流使用。
-本文档介绍了这个语言的语法。看完了本文档后，可以参考一下示例文件tictactoe.jsc。
-jscjsc723723@163.com
-2017/3/24
---------------------第零节 运行方法--------------------
-本语言支持两种运行模式
-1. 交互模式 - 即双击程序直接运行
-2. 脚本模式 - 用控制台运行程序，后面跟一个想要运行的脚本的文件名（或者直接把脚本拖拽到程序的图标上）
-
--------------------第一节 变量--------------------
-
-使用var关键字定义变量
-1. 定义一个变量，不初始化：
-var a;
-2. 定义多个变量，不初始化：
-var a,b,c;
-3. 定义变量，并且初始化，后面可以是任意复杂的表达式：
-var a = 1;
-var b = 1+3*2, c, d = 4-9;
-var e = (a+b)*2; #可以用别的变量的值给新变量赋值
-注意每条语句后面都要加“；”。
-多句语句可以写在一行。
-#表示这一行后面的部分都是注释。
-
---------------------第二节 字符串--------------------
-
-使用str关键字定义字符串
-类似定义变量，以下都是合法的：
 str s;
 str s1,s2,s3;
 str s1 = "aa", s2;
 
-但是字符串不支持+运算符：
-str s1 = "aa"+"bb"; #错误
+Node that there is no `+` operations implemented for strings：
+str s1 = "aa"+"bb"; #error
+```
 
---------------------第三节 运算符--------------------
+#### Chapter 3: Operators
 
-算数运算符有：
+```
+
+arithmetic operators：
 + - * / % ^
-这里注意除法不会向下取整。
-另外，^表示乘方，例2^3等于8
-乘方运算的优先度要大于*/%。
+(note that no integer division for /)。
+a^b means raise a to bth power 
+^ has higher precedence to */%。
 
-比较运算符：
+comparation operators：
 ==  !=  <  >  <= >=
-|| &&
-不过没有取反运算符"！"
 
-赋值运算符：
+logic operators
+|| &&
+not()
+
+assignment oprator：
 =
-例：
+examples:
 a = 1;
 s1 = "string";
-b = func(1,2,3); #函数在之后的章节里介绍
+b = func(1,2,3); #functions are introduced in later chapters
+```
 
+#### Chapter 4: Arrays
 
---------------------第四节 数组--------------------
+```
+Arrays can store any type, including other arrays.
+Array is 0-indexed.
 
-数组类似python的list，里面可以存放任意类型的数据，包括其他数组，
-并且可以通过append关键字动态加长。
+Use keyword `arr` to define arrays
 
-使用arr关键字定义数组
-
-1.定义空数组
+1.define empty arrays
 arr array;
 arr array1,array2,array3;
-产生的数组长度都为0
+# arrays defined in this way have length 0.
 
-2.定义有初始长度的数组
+2.define arrays with initial size
 arr array[initialSize];
-例：
-arr array[10]; #array的初始长度为10，其元素全为null
-arr array1[5+8], array2[a+3]; #方括号里可以是任意复杂的表达式（a是一个初始化过的变量）。
+For example：
+arr array[10]; #array has 10 null elements
+arr array1[5+8], array2[a+3]; #can use expression as array's initial size。
 
-3.定义多维数组
-例：
+3.define multi-dimensional array
+For example：
 arr doubleArray[2,3]; 
-#创建一个两行三列的二维数组，元素全为null
-#即：{ { null, null, null }, { null, null, null } }
-也可以定义更高维的数组，维度用逗号隔开。
+# create an 2*3 array，whose elements are all null
+# = { { null, null, null }, { null, null, null } }
+
+It is also possible to define arrays with more dimensions, split by colon:
 arr triArray[4,5,6], quaArray[2,3,4,5];
 
-4.给数组的元素赋值
+4.Assign a value to an element in array
 array[index] = value;
-注意元素下标从0开始。
-例：
-array[2] = 3; #把array的第二个元素改成3
+
+For example：
+array[2] = 3; #assign 3 to the item 2 (0-indexed) in the array
 doubleArray[0,1] = 4;
-#即：doubleArray 等于 { { null, 4, null }, { null, null, null } }
 
-5.增加数组长度
-使用append关键字在数组末尾添加元素
-#假设array 等于 {0,1}
+
+5.Use append to add elements to array at back
+#Suppose array = {0,1}
 append array 2；
-#此时array 等于 {0,1,2};
-也可以不制定要添加的元素的值，这时会默认添加一个null值
+#Now array = {0,1,2};
+If you omit the argument after `array`, a `null` will be appended.
 append array;
-#此时array 等于 {0,1,2,null};
+#Now array = {0,1,2,null};
+```
 
---------------------第五节 输入输出--------------------
+#### Chapter 5: Input/Output
 
-inputNum函数用来接受用户输入的一个数字：
+```
+Use inputNum function to get a numeric input from stdin：
 inputNum(a);
-则用户的输入会被保持到a中
-inputNum(array[index])这种用法现在还不支持
+Note: There is no support for `inputNum(array[index])` for now
 
-print函数可以显示各种数据的值，接受多个参数和各种数据类型：
+Use print function to output values to stdout：
 
-打印变量的值的时候必须再加一层eval()函数，否则打印出来的是变量的名字。
+When use print to display the value of a variable, you need to use with eval. Otherwise, it will simply print the name of the variable.
 
-#a 是 var，值等于2
-print(a);#显示a
-print(eval(a));#显示2
-print(eval(a+2));#显示4
+var a = 2;
+print(a);#display a
+print(eval(a));#display 2
+print(eval(a+2));#display 4
 
-#s 是 str，等于“abc“
-print(s); #显示abc
+#str s = “abc“;
+print(s); #display abc
 
+print can take multiple arguments, seperated by colons. 
 print("a = ",eval(a),"\n");
-print("array = ",array); #array是数组
+print("array = ",array);
+```
 
---------------------第六节 控制语句--------------------
-先列一下条件的例子：
+#### Chapter 6: Control Statements
+
+Conditions
+
+The expression below are all examples of valid conditions.
+
+```
 true
+false
 winner == X
 i<L && winner==0 || false
-以上都是合法的条件
-注意true和false是关键字
+not(1 == 2)
+```
 
-1. if语句
-if(条件) 
+`true` and `false` are keywords.
+
+Use `not(condition)` to inverse a condition
+
+##### If block
+
+```
+if(condition) 
 {
-    执行的语句
+    statements
 };
 
-if(条件1){
-    执行的语句
+if(condition){
+    statements
 }else{
-    执行的语句
+   	statements
 };
 
-if(条件1){
-    执行的语句
-}elif(条件2){ #elif块可以有任意个
-    执行的语句
+if(condition_1){
+    statements
+}elif(condition_2){ #there can be any numbers of elif blocks
+    statements
 }else{
-    执行的语句
+    statements
 };
-#注意if语句结尾的分号
+#Note the semicolon at the end of the blocks
 
-2.while语句
-while(条件)
+```
+
+##### while block
+
+```
+while(condition)
 {
-    执行的语句
+    statements
+};
+```
+
+##### for block
+
+```
+for(initialization;(condition);end_of_block)
+{
+        statements
 };
 
-3.for语句
-for((初始化),(条件),(每次循环结束后的操作))
-{
-        执行的语句
-};
-例：
-for((var i = 0),(i<3),(i=i+1))
+For example:
+for(var i = 0;(i<3);i=i+1)
 {
         for((var j = 0),(j<3),(j=j+1))
         {
             board[i,j] = 0;
         };
+        break;
 };
-注意for的括号里面的语句即使已经用逗号隔开，还是要再用一对括号隔开
-最后，用break关键字可以跳出一层while或for循环。
+```
 
---------------------第七节 函数--------------------
-使用proc关键字定义函数，要求参数列表包含类型，但是不需要写返回类型
-proc可以接受的参数类型包括：var, str, arr, proc, func（之后介绍）。
-使用return关键字返回一个var类型的值（即不能是一个str，arr，func，proc）
-例1：
+Note that you must use an extra pair of parathesis on the condition.
+
+And you can use the statement `break;` to jump out from the inner-most while/for block.
+
+#### Chapter 7: Functions
+
+Use keyword `proc` to define functions. You need to specify the type of input arguments in the function's definition, but you don't need to specify the return type.
+
+`proc` can take `var, str, arr, proc, func (introduced later)` types as arguments.
+
+use `return <expression>` to return a number from function.
+
+use return obj <expression> to return an `str，arr，func，proc` from function
+
+```
+Example 1:
 proc getNum(str prompt,var low,var high)
 {
     var result = 0;
@@ -210,87 +254,109 @@ proc getNum(str prompt,var low,var high)
 	};
     return result; #返回一个数值
 };
-使用return obj返回str，arr，func，proc
-例2：
+
+Example 2:
 proc initlines()
 {
     arr lines[8,3,2];
-    return obj lines; #返回一个数组的引用
+    return obj lines; #return an reference to an array 
+    				  #note that it is not destroyed when function ends
 };
-函数里面可以定义函数，可以当做值返回。
-定义在其他函数里面的函数可以访问其父函数里的变量（即和python是一样的）。
-例3：
+
+You can define function in function, and return function from function
+A function defined in an other function can access arguments of its parent function。
+Example 3:
 proc make_adder(var a)
 {
     proc adder(var b) 
     {
         return a+b;
     };
-    return obj adder; #返回一个函数
+    return obj adder; 
 };
-proc add3 = make_adder(3); #注意这里使用proc关键字把add3定义为make_adder(3)的返回值
+proc add3 = make_adder(3); #Use keyword proc to initialize add3 to the return value 
 var five = add3(2);
-print(eval(five)); #这里会显示5
+print(eval(five)); #display 5
 
-另外，JScript内置了一些函数，它们是：
-print(...), inputNum(arg),
-sin(arg),cos(arg),tan(arg),exp(arg),ln(arg),log(num,base)
-deriv(func,var) （下一节介绍）
 
---------------------第八节 数学函数--------------------
+```
 
-由于写这个语言的一开始的目的是为了写一个能自动求导的程序，所以有这么一个数据类型。
+##### Built-in functions
 
-使用func定义数学函数，一条语句只能定义一个。
-例：
+ ```
+ print(...), inputNum(arg),
+ sin(arg),cos(arg),tan(arg),exp(arg),ln(arg),log(num,base)
+ deriv(func,var) #introduced in later chapter
+ ```
+
+#### Chapter 8: Mathematical functions
+
+The initial purpose of this language is to compute the mathematical derivitives of multivariable functions. 
+
+Use keyword `func ` to define a mathematical function. You can only define one math function in a single statement. 
+
+```
 var x,y;
 func f = x^2;
 func g = sin(x)+y/2;
+```
 
-当然，func是可以用eval求值的，例：
+You can use function `eval` to compute the value of a function:
+
+```
 var x;
 func f = x^2;
-print(eval(f)); #出错，因为x还没有赋值
+print(eval(f)); #error: x is not initialized
 x = 3;
-print(eval(f)); #显示9
+print(eval(f)); #display 9
+```
 
-使用deriv对一个func求导，返回一个新的func
-用法deriv(要求导的函数，要对哪个自变量求导)
-例：
+Use function `deriv` to find the mathematical derivitive of a function, which returns a new `func` object. Usage: `deriv(f, x)` #computes df/dx
+
+```
 func df = deriv(f,x); #df = 2*x
-#前面可以是一个由变量和其他func组成的任意复杂度的表达式
+# the first entry can be any function expression
 func dg = deriv(sin(x)+y/2 + f, y);  #dg = 0.5
+```
 
-其实，var的本质也是func，所以deriv第一个参数可以是一个var：
+In fact, var is a special case of `func`, therefore the first entry of deriv can also be a `var`
+
+```
 deriv(x,x) #=1
 deriv(x,y) #=0
-这同时也是为什么print var的时候要加eval才会显示值，
-因为print默认把var当成func，以显示func的形式显示var，
-只有明确告诉print要显示var的值才会显示数字。
+```
 
-注意求导是符合链式法则的，请看如下例子：
-var x,y,t; #建立三个变量
+This is why you must add `eval` when you want to display the value of a `var`, because `var` is treated the same as `func` by default. 
+
+`deriv` uses chain rule when there is multiple layers of dependence:
+
+```
+var x,y,t; 
 func x = 2*t;
-func y = t^2; #建立x，y与t的依赖关系
-func z = x*y; #则z关于是x，y的函数，也是关于t的函数
-此时，
-deriv(z,t) 等于 2y+x*(2t)
-deriv(z,x) 等于 y
-deriv(z,y) 等于 x
-这个关系对于x = g(u,v), y = h(u,v)等更复杂的情况也成立，有兴趣的读者可以自行尝试。
+func y = t^2; 
+func z = x*y; 
 
---------------------第九节 其他功能--------------------
-1. enviro;
-enviro;语句显示当前的环境，即所有已经定义的var,str,arr,func,proc
+Now,
+deriv(z,t) is 2y+x*(2t)
+deriv(z,x) is y
+deriv(z,y) is x
+```
 
-2. pause [提示];
-即暂停一下，按任意键继续的功能，后面可以跟一个字符串，也可以不跟，例：
-pause "请按任意键继续";
+#### Chapter 9: Miscellaneous
 
-3. delete [想删除的东西的名字];
-删除一个东西的定义，如果同时存在叫做一个名字的多种对象，那么所有的对象都被删除，例：
+```
+1. enviro();
+print the current enviroment，(all defined var,str,arr,func,proc objects)
+
+2. pause(<prompt>);
+pause with a prompt, wait for a key to continue, for example:
+pause("press any key to continue");
+
+3. delete(<object>);
+delete an object from enviroment, if there are multiple objects with the same name, 
+then all of them are deleted. Example：
 var x = 3;
 arr x[2];
-delete x; #var x和arr x都被删除了
+delete(x); #delete both var x and arr x
 ```
 

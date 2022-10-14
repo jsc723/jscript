@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "expression": {
+      "commandName": "Project",
+      "commandLineArgs": "test.jsc"
+    }
+  }
+}

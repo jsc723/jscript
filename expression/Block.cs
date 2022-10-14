@@ -357,21 +357,30 @@ namespace expression
             this.args = Program.splitTokens(arg_names,",");
             for(int i = 0; i < args.Count; i++)
             {
+                if (args[i].Length == 0)
+                {
+                    continue; 
+                }
                 if(args[i].Length == 1)
                     args[i] = Program.insertToken(args[i], 0, "var");
                 if (args[i].Length != 2)
-                    throw new Exception("syntax error in parameter list");
+                {
+                    throw new Exception(String.Format("syntax error in {0} parameter list", name));
+                }
             }
             this.block = b;
             this.parentFrame = frame;
         }
-        public IExpression call(string[] allvalues,ref Frame frame)
+        public IExpression call(string[] allvalues, ref Frame frame)
         {
             List<string[]> values = Program.getAllArgs(allvalues);
             Frame funcFrame = new Frame(ref parentFrame);
             IExpression ret;
-            if(values.Count!=args.Count || args[0].Length==0 && values[0].Length!=0)
-                throw new Exception("wrong argument number");
+            if (values[0].Length > 0)
+            {
+                if (values.Count != args.Count || args[0].Length == 0 && values[0].Length != 0)
+                    throw new Exception("wrong argument number");
+            }
             for(int i=0;i<args.Count&&args[0].Length!=0;i++)
             {
                 string[] p = args[i];

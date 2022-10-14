@@ -26,11 +26,9 @@ namespace expression
     {
         static bool __debug__ = false;
         static bool __step__ = false;
-        static bool __forcePath__ = false;
-        static string __path__ = "tictactoe.jsc";
-        static string __version__ = "2.0.beta-2";
+        static string __version__ = "2.0.0";
         static string __myname__ = "Sicheng Jiang";
-        static string __myEmail__ = "jscjsc723723@163.com";
+        static string __myEmail__ = "ja235711@gmail.com";
         static string __releaseTime__ = "2018.11.27";
         static public string[] mergeArray(string[] First, string[] Second)
         {
@@ -122,14 +120,14 @@ namespace expression
                 i++;
             }
             if (prioToken(tokens[i]) == 4) i++;
-            if (tokens[i] != left) throw new Exception("expect (");
+            if (tokens[i] != left) throwError("expect (");
             do
             {
                 int count = 1;
                 while (count != 0)
                 {
                     i++;
-                    if (i >= tokens.Length) throw new Exception(para + " not matched");
+                    if (i >= tokens.Length) throwError(para + " not matched");
                     if (tokens[i] == left) count++;
                     else if (tokens[i] == right) count--;
                 }
@@ -144,14 +142,14 @@ namespace expression
             string left = para[0].ToString();
             string right = para[1].ToString();
             if (prioToken(tokens[i]) == 5) return i;
-            if (tokens[i] != right) throw new Exception("expect " + right);
+            if (tokens[i] != right) throwError("expect " + right);
             do
             {
                 int count = -1;
                 while (count != 0)
                 {
                     i--;
-                    if (i < 0) throw new Exception(para + " not matched");
+                    if (i < 0) throwError(para + " not matched");
                     if (tokens[i] == "(") count++;
                     else if (tokens[i] == ")") count--;
                 }
@@ -186,7 +184,9 @@ namespace expression
             all_args = Program.addPara(all_args);
             List<string[]> ss = splitTokens(all_args, delim);
             if (ss.Count == 0)
+            {
                 ss.Add(new string[0]);
+            }
             return ss;
         }
 
@@ -218,7 +218,10 @@ namespace expression
                 }
                 i = goForwardArg(tokens, i);
             }
-            result.Add(tokens);
+            if (tokens.Length > 0)
+            {
+                result.Add(tokens);
+            }
             return result;
         }
 
@@ -295,7 +298,7 @@ namespace expression
             {
                 Console.ReadKey();
             }
-            if (!paraMatchs(sentence)) throw new Exception("parentheses not matched");
+            if (!paraMatchs(sentence)) throwError("parentheses not matched");
             sentence = addPara(sentence);
             if (isWholeArg(sentence))
                 return makeExpr(subTokens(sentence, 1, sentence.Length - 2),ref frame);
@@ -308,7 +311,7 @@ namespace expression
                     frame.vars.Remove(term[0]);
                     frame.vars.Add(term[0], new Variable(term[0]));
                     frame.varValues.Remove(term[0]);
-                    if (term.Length >1)
+                    if (term.Length > 1)
                         frame.varValues.Add(term[0], makeExpr(subTokens(term, 2), ref frame).eval(frame));
                     else
                         frame.varValues.Add(term[0], 0); //default value is 0
@@ -345,10 +348,10 @@ namespace expression
                         frame.strs.Add(term[0], new Str());
                     else if (term.Length > 1)
                     {
-                        frame.strs.Add(term[0], (Str)makeExpr(subTokens(term,2),ref frame));
+                        frame.strs.Add(term[0], (Str)makeExpr(subTokens(term, 2), ref frame));
                     }
                     else
-                        throw new Exception("str format error");
+                        throwError("str format error");
                 }
             }
             else if (sentence[0] == "func")
@@ -365,20 +368,20 @@ namespace expression
                 {
                     IExpression e = makeExpr(subTokens(sentence, 3), ref frame);
                     if (!(e is Procedure))
-                        throw new Exception("expect return a proc object");
+                        throwError("expect return a proc object");
                     frame.proces.Remove(sentence[1]);
                     frame.proces.Add(sentence[1], (Procedure)e);
                     return new Null();
                 }
-                if (sentence[2] != "(") throw new Exception("expect a parameter list");
+                if (sentence[2] != "(") throwError("expect a parameter list");
                 int i = goForwardArg(sentence, 2);
                 string[] args = subTokens(sentence, 3, i - 4);
-                if (sentence[i] != "{") throw new Exception("expect {}");
+                if (sentence[i] != "{") throwError("expect {}");
                 int j = goForwardArg(sentence, i, "{}");
                 string[] token = subTokens(sentence, i + 1, j - i - 2);
                 Block b = new Block(token);
                 frame.proces.Remove(funcName);
-                frame.proces.Add(funcName, new Procedure(funcName, args, b,ref frame));
+                frame.proces.Add(funcName, new Procedure(funcName, args, b, ref frame));
             }
             else if (sentence[0] == "if")
             {
@@ -387,10 +390,10 @@ namespace expression
             #region for/while
             else if (sentence[0] == "while" || sentence[0] == "for")
             {
-                if (sentence[1] != "(") throw new Exception("while/for expect ()");
+                if (sentence[1] != "(") throwError("while/for expect ()");
                 int i = goForwardArg(sentence, 1);
                 string[] cond = subTokens(sentence, 1, i - 1);
-                if (sentence[i] != "{") throw new Exception("while/for expect {}");
+                if (sentence[i] != "{") throwError("while/for expect {}");
                 int j = goForwardArg(sentence, i, "{}");
                 string[] token = subTokens(sentence, i + 1, j - i - 2);
                 Block b = new Block(token);
@@ -406,7 +409,7 @@ namespace expression
             #endregion
             else if (sentence[0] == "print")
             {
-                if (sentence.Length < 1 || sentence[1] != "(") throw new Exception("print expect ()");
+                if (sentence.Length < 1 || sentence[1] != "(") throwError("print expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
@@ -429,18 +432,19 @@ namespace expression
             else if (sentence[0] == "inputNum")
             {
                 if (sentence[1] != "(")
-                    throw new Exception("inputNum expect ()");
+                    throwError("inputNum expect ()");
                 List<string[]> args = splitTokens(subTokens(sentence, 2, sentence.Length - 3), ",");
                 if (args.Count != 1)
-                    throw new Exception("inputNum wrong argument number");
+                    throwError("inputNum wrong argument number");
                 if (tokenIsNumber(args[0][0]))
-                    throw new Exception("inputNum argument must be a variable");
+                    throwError("inputNum argument must be a variable");
                 if (frame.containsVar(args[0][0]))
                     frame.setVarValue(args[0][0], Convert.ToDouble(Console.ReadLine()));
-                else throw new Exception("variable\"" + args[0][0] + "\"is not defined");
+                else throwError("variable\"" + args[0][0] + "\"is not defined");
             }
-            else if (sentence.Length >= 3 && sentence[1] == "=")
+            else if (sentence.Length >= 3 && sentence.Contains("="))
             {
+                int k = firstIndexInTokens("=", sentence);
                 if (frame.containsVar(sentence[0]))
                 {
                     frame.setVarValue(sentence[0], makeExpr(subTokens(sentence, 2), ref frame).eval(frame));
@@ -455,13 +459,12 @@ namespace expression
                 }
                 else if (frame.containsArr(sentence[0]))
                 {
-                    if (sentence[1] == "=")
+                    if (k == 1)
                     {
                         frame.setArr(sentence[0], (Arr)makeExpr(subTokens(sentence, 2), ref frame));
                     }
                     else
                     {
-                        int k = firstIndexInTokens("=", sentence);
                         string[] args = subTokens(sentence, 2, k - (2 + 1));
                         string[] value = subTokens(sentence, k + 1);
                         List<string[]> devidedArgs = getAllArgs(args);
@@ -473,7 +476,7 @@ namespace expression
                         bool is_num = false;
                         try
                         {
-                            t = makeExpr(value,ref frame).eval(frame);
+                            t = makeExpr(value, ref frame).eval(frame);
                             is_num = true;
                         }
                         catch { }
@@ -487,15 +490,15 @@ namespace expression
                 {
                     IExpression e = makeExpr(subTokens(sentence, 2), ref frame);
                     if (!(e is Procedure))
-                        throw new Exception("expect return a proc object");
+                        throwError("expect return a proc object");
                     frame.setProc(sentence[0], (Procedure)e);
                 }
             }
-
+            
             else if (sentence[0] == "append")//把一个对象加到数组后面，如果没有指定加什么，默认加Null TODO
             {
                 if (!frame.containsArr(sentence[1]))
-                    throw new Exception("can not find array：" + sentence[1]);
+                    throwError("can not find array：" + sentence[1]);
                 IExpression temp;
                 if (sentence.Length > 2)
                     temp = makeExpr(subTokens(sentence, 2), ref frame);
@@ -527,13 +530,13 @@ namespace expression
             else if (sentence[0] == "determine")
             {
                 if (sentence.Length == 1 || !isWholeArg(subTokens(sentence, 1)))
-                    throw new Exception("syntax error in determine: expect determine(...)");
+                    throwError("syntax error in determine: expect determine(...)");
                 Console.WriteLine("{0}", Tools.determine(subTokens(sentence, 2, sentence.Length - 3), frame));
             }
             else if (sentence[0] == "enviro") 
             {
                 if(sentence.Length == 1 || !isWholeArg(subTokens(sentence, 1)))
-                    throw new Exception("syntax error in enviro: expect enviro()");
+                    throwError("syntax error in enviro: expect enviro()");
                 frame.showFrame();
             }
             else if (sentence[0] == "deriv" || sentence[0] == "eval")
@@ -543,7 +546,7 @@ namespace expression
             else if (sentence[0] == "pause") 
             {
                 if (sentence.Length == 1 || !isWholeArg(subTokens(sentence, 1)))
-                    throw new Exception("syntax error in pause: expect pause(<expr>)");
+                    throwError("syntax error in pause: expect pause(<expr>)");
                 sentence[0] = "print";
                 processSentence(sentence, ref frame, ref end);
                 Console.ReadKey();
@@ -555,7 +558,7 @@ namespace expression
             else if (sentence[0] == "delete") //TODO
             {
                 if (sentence.Length != 4 || sentence[1] != "(" || sentence[3] != ")")
-                    throw new Exception("syntax error in delete: expect delete(<name>)");
+                    throwError("syntax error in delete: expect delete(<name>)");
                 string name = sentence[2];
                 frame.vars.Remove(name);
                 frame.varValues.Remove(name);
@@ -584,10 +587,11 @@ namespace expression
             }
             else
             {
-                throw new Exception("can not recognize the command：" + sentence[0]);
+                throwError("can not recognize the command：" + sentence[0]);
             }
             return new Null();
         }
+
 
         static public bool stringisKeyInDic<T>(string key , Dictionary<string,T> dic)
         {
@@ -638,7 +642,7 @@ namespace expression
         }
         static public IExpression makeExpr(string[] sentence,ref Frame frame)
         {
-            if (!paraMatchs(sentence)) throw new Exception("() not matched");
+            if (!paraMatchs(sentence)) throwError("() not matched");
             
             IExpression arg1, arg2;
             int i,j;
@@ -650,7 +654,7 @@ namespace expression
                     return new Str(temp);
                 }
                 if(prioToken(sentence[0]) != 5)
-                    throw new Exception("syntax error");
+                    throwError("syntax error");
                 if(tokenIsNumber(sentence[0]))
                     return new Number(Convert.ToDouble(sentence[0]));
                 if (frame.containsVar(sentence[0]))
@@ -671,22 +675,22 @@ namespace expression
             }
             if (sentence[0] == "deriv")
             {
-                if (sentence.Length<1||sentence[1] != "(") throw new Exception("deriv expect ()");
+                if (sentence.Length<1||sentence[1] != "(") throwError("deriv expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
                 if (devidedArgs.Count != 2)
-                    throw new Exception("deriv takes 2 arguments");
+                    throwError("deriv takes 2 arguments");
                 if (devidedArgs[1].Length != 1)
-                    throw new Exception("deriv 2nd arguments have to be a single var");
+                    throwError("deriv 2nd arguments have to be a single var");
                 if (!frame.containsVar(devidedArgs[1][0]))
-                    throw new Exception("variable\"" + devidedArgs[1][0] + "\"is not defined");
+                    throwError("variable\"" + devidedArgs[1][0] + "\"is not defined");
                 if (devidedArgs.Count == 2)
                     return makeExpr(devidedArgs[0], ref frame).deriv(frame.getVar(devidedArgs[1][0]),ref frame);
             }
             if (sentence[0] == "eval")
             {
-                if (sentence.Length < 1 || sentence[1] != "(") throw new Exception("eval expect ()");
+                if (sentence.Length < 1 || sentence[1] != "(") throwError("eval expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 List<string[]> devidedArgs = getAllArgs(args);
@@ -695,11 +699,11 @@ namespace expression
             }
             if (sentence[0] == "return")
             {
-                throw new Exception("return syntax error: try 'return(<expr>)'");
+                throwError("return syntax error: try 'return(<expr>)'");
             }
             if (frame.containsProc(sentence[0]) && goForwardArg(sentence, 1) >= sentence.Length)
             {
-                if (sentence[1] != "(") throw new Exception("proc expect ()");
+                if (sentence[1] != "(") throwError("proc expect ()");
                 int k = 1, m;
                 IExpression r = frame.getProc(sentence[0]);
                 do
@@ -714,7 +718,7 @@ namespace expression
             }
             else if(frame.containsFunc(sentence[0]) && isWholeArg(subTokens(sentence, 1)))
             {
-                if (sentence[1] != "(") throw new Exception("func expect ()");
+                if (sentence[1] != "(") throwError("func expect ()");
                 int k = goForwardArg(sentence, 1);
                 string[] args = subTokens(sentence, 2, k - 3);
                 Frame funcFrame = new Frame(ref frame, args);
@@ -738,7 +742,7 @@ namespace expression
             else if (firstIndexInTokens(sentence[0], Tools.fours) >= 0)
             {
                 if (sentence[1] != "(")
-                    throw new Exception("expect (");
+                    throwError("expect (");
                 if (sentence[0] == "log")
                 {
                     i = goForwardArg(sentence, 2);
@@ -765,7 +769,7 @@ namespace expression
                     if (s == "int")
                         return new Int(arg1);
                     else
-                        throw new Exception("unknown function：" + s);
+                        throwError("unknown function：" + s);
                 }
             }
             else
@@ -788,9 +792,18 @@ namespace expression
                 if (s == "^")
                     return Tools.makePow(arg1, arg2);
                 else
-                    throw new Exception("unknown operation：" + s);
+                {
+                    throwError("unknown operation：" + s);
+                }
             }
+            return null;
         }
+
+        static public void throwError(string msg)
+        {
+            throw new Exception(msg);
+        }
+
         static public bool paraMatchs(string[] sentence , string para = "()")
         {
             int count = 0;
@@ -882,7 +895,7 @@ namespace expression
                 i = buf.IndexOf('\"',j);
                 if (i < 0) break;
                 j = buf.IndexOf('\"', i + 1);
-                if (j < 0) throw new Exception("quotes not matched");
+                if (j < 0) throwError("quotes not matched");
                 temp = buf.Substring(i, j - i + 1);
                 doneBuf = doneBuf.Replace(temp, "_REP_" + count.ToString());
                 record.Add(temp);
@@ -896,7 +909,7 @@ namespace expression
         {
             string[] tokens = new string[0];
             IExpression nul;
-            if (!__forcePath__ && args.Length == 0)
+            if (args.Length == 0)
             {
                 Console.WriteLine("J-Script {0} ({1}) | All rights reserved to {2} ({3})",
                     __version__,__releaseTime__, __myname__,__myEmail__);
@@ -913,7 +926,7 @@ namespace expression
                     {
                         if (e.Message == "END")
                             break;
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.ToString());
                         tokens = new string[0];
                     }
                 }
@@ -921,8 +934,6 @@ namespace expression
             else
             {
                 string path = args[0];
-                //string path = "helloworld.jsc";
-                //string path = __path__;
                 if (!File.Exists(path))
                     Console.WriteLine("file not found");
                 StreamReader sr = File.OpenText(path);
@@ -938,13 +949,12 @@ namespace expression
                     {
                         if (e.Message == "END")
                             break;
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.ToString());
                         tokens = new string[0];
                     }
                 }
             }
 
-            //Console.WriteLine(term.eval(dic));
             Console.ReadKey();
         }
     }

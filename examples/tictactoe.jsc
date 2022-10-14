@@ -1,11 +1,14 @@
-#J-Script 1.1
+#J-Script 2.0
 var E = 1,O = 2,X = 3,N = 3,L = 8;
 arr board[N,N],lines[L,N,2];
+var t;
+t = 1;
+
 proc initialBoard()
 {
-    for((var i = 0),(i<3),(i=i+1))
+    for(var i = 0;(i<3);i=i+1)
     {
-        for((var j = 0),(j<3),(j=j+1))
+        for(var j = 0;(j<3);j=j+1)
         {
             board[i,j] = E;
         };
@@ -15,9 +18,9 @@ proc initlines()
 {
     var i = 0,j = 0;
     
-    for((i=0),(i<6),(i = i+1))
+    for(i=0;(i<6);i=i+1)
 	{
-		for((j = 0),(j<3),(j=j+1))
+		for(j = 0;(j<3);j=j+1)
 		{
             if(i<3){
                 lines[i,j,0] = i;
@@ -31,20 +34,20 @@ proc initlines()
             };
 		};
 	};
-	for((i=0),(i<3),(i=i+1))
+	for(i=0;(i<3);i=i+1)
 	{
 		lines[6,i,0] = i;
 		lines[6,i,1] = i;
 		lines[7,i,0] = i;
 		lines[7,i,1] = 2-i;
 	};
-    return obj lines;
+    return lines;
 };
 proc printBoard()
 {
-    for((var i = 0),(i<3),(i=i+1))
+    for(var i = 0;(i<3);i=i+1)
     {
-        for((var j = 0),(j<3),(j=j+1))
+        for(var j = 0;(j<3);j=j+1)
         {
             print("|");
             if(board[i,j]==E)
@@ -65,7 +68,7 @@ proc getNum(str s,var low,var high)
 	{
 		inputNum(result);
 		if(result>=low && result<=high){break;};
-	    print("请输入",eval(low),"到",eval(high),":"); 
+	    print("please enter",eval(low),"to",eval(high),":"); 
 	};
     return result;
 };
@@ -95,7 +98,7 @@ proc main()
 		if(round==10||winner!=0) {break;};
 	};
 	printResult(winner);
-    pause "Press anything to countinue";
+    pause("Press anything to countinue");
 };
 proc userInput(var who)
 {
@@ -114,7 +117,7 @@ proc userInput(var who)
 proc threeInBoard()
 {
 	var winner = 0;
-    for((var i = 0),( i<L && winner==0 ),(i=i+1))
+    for(var i = 0; (i<L && winner==0) ;i=i+1)
     {
         breakpoint;
 		winner = threeInLine(i);
@@ -133,7 +136,7 @@ proc threeInLine(var index)
 proc valueOfLine(var index)
 {
 	var product = 1;
-	for((var i = 0),(i<N),(i = i+1))
+	for(var i = 0;(i<N);i = i+1)
     {
 		product = product * board[lines[index,i,0],lines[index,i,1]];
     };
