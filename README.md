@@ -1,9 +1,9 @@
 # J-Script
 ## Introduction
 
-This is a simple interpreted language that I wrote a few years ago for educational purpose. 
+This is a simple script language that I wrote a few years ago for educational purpose. 
 
-This language is first designed to find the mathematical derivatives (including partial derivatives) of mathematical functions. For example, if there is two variable x and y, and we define functions u:=sin(x)\*y, v:=x\*cos(y), f:=u+v, the language can easily find the mathematical form of df/dx (=y\*cos(x)+cos(y)), df/dy (=sin(x)-x\*sin(y)) using chain rule.
+This language is first designed to find the mathematical derivatives (including partial derivatives) of mathematical functions. For example, if there is two variable x and y, and we define functions u:=sin(x)\*y, v:=x\*cos(y), f:=u+v, it can easily find the mathematical form of df/dx (=y\*cos(x)+cos(y)), df/dy (=sin(x)-x\*sin(y)) using chain rule.
 
 This language can also be used for general purposes. It has control structures such as if/while/for. 
 It also has strings and arrays (may be multi-dimensional) and functions!
@@ -12,13 +12,13 @@ Some weaknesses of this language: It is not good at detecting syntax error. If t
 
 However, there is no obvious bug in the interpreter, so it is still usable.
 
-There is an example in `/examples` folder.
+There is an example in `/examples` folder, which is a tic-tac-toe game written in J-Script.
 
 ## Documentation
 
-#### Chapter 0: Run the interperater
+#### Chapter 0: How to run
 
-1. Interactive mode: simply double click the exe file
+1. Interactive mode: simply double click the `J-Script.exe` file
 2. Script mode: enter command `J-Script.exe <script_name>.jsc`
 
 #### Chapter 1: Variables
@@ -74,7 +74,7 @@ a^b means raise a to bth power
 comparation operators：
 ==  !=  <  >  <= >=
 
-logic operators
+logic operators:
 || &&
 not()
 
@@ -226,7 +226,7 @@ for(var i = 0;(i<3);i=i+1)
 };
 ```
 
-Note that you must use an extra pair of parathesis on the condition.
+Note that you must use an extra pair of parathesis around the condition.
 
 And you can use the statement `break;` to jump out from the inner-most while/for block.
 
@@ -250,9 +250,9 @@ proc getNum(str prompt,var low,var high)
 	{
 		inputNum(result);
 		if(result>=low && result<=high){break;};
-	    print("请输入",eval(low),"到",eval(high),":"); 
+	    print("please input",eval(low),"to",eval(high),":"); 
 	};
-    return result; #返回一个数值
+    return result; #return a number
 };
 
 Example 2:
