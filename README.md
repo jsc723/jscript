@@ -241,8 +241,9 @@ use `return <expression>` to return a number from function.
 
 use return obj <expression> to return an `str，arr，func，proc` from function
 
-```
+
 Example 1:
+```
 proc getNum(str prompt,var low,var high)
 {
     var result = 0;
@@ -255,18 +256,22 @@ proc getNum(str prompt,var low,var high)
 	};
     return result; #return a number
 };
-
+```
 Example 2:
+```
 proc initlines()
 {
     arr lines[8,3,2];
     return obj lines; #return an reference to an array 
     				  #note that it is not destroyed when function ends
 };
-
+```
 You can define function in function, and return function from function
 A function defined in an other function can access arguments of its parent function。
+
+
 Example 3:
+```
 proc make_adder(var a)
 {
     proc adder(var b) 
