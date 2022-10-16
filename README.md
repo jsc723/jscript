@@ -1,4 +1,5 @@
 # J-Script
+(not JavaScript)
 ## Introduction
 
 This is a simple script language that I wrote a few years ago for educational purpose. 
